@@ -278,23 +278,36 @@ struct BTree : public Segment {
             buffer_manager.unfix_page(leaf_frame, true);
 
             // now handle the node splits and propagate it up the tree 
-            while (parent_node != NULL && parent_node->count == InnerNode::kCapacity ) {
-                BufferFrame &parent_frame = buffer_manager.fix_page(parent_page_id, true);
-                InnerNode * new_inner_node;
-
-                BufferFrame &new_inner_frame = buffer_manager.fix_page(buffer_manager.get_overall_page_id(segment_id, next_page_id), true) ;
-                new_inner_node = new (new_inner_frame.get_data()) InnerNode();
-                KeyT new_split_key = ((InnerNode *) parent_node)->split((std::byte *) new_inner_node ); // What is this line doing?
-
-                // now unfix the new inner and parent frames and then upda new page id var 
-                buffer_manager.unfix_page(new_inner_frame, true);
-                buffer_manager.unfix_page(parent_frame, true);
-                next_page_id++;
-
-                parent_node = parent_node->parent ; 
-                split_key = new_split_key;
-                new_leaf_node = NULL;
-            }
+		while (parent_node != NULL && parent_node->count == InnerNode::kCapacity ) {
+		    BufferFrame &parent_frame = buffer_manager.fix_page(parent_page_id, true);
+		    InnerNode * new_inner_node;
+		
+		    BufferFrame &new_inner_frame = buffer_manager.fix_page(buffer_manager.get_overall_page_id(segment_id, next_page_id), true) ;
+		    new_inner_node = new (new_inner_frame.get_data()) InnerNode();
+		    KeyT new_split_key = ((InnerNode *) parent_node)->split((std::byte *) new_inner_node );
+		
+		    // Insert the separator key into the parent node
+		    if (parent_node->parent) {
+			parent_node->parent->insert(split_key, next_page_id);
+		    }
+		
+		    // now unfix the new inner and parent frames and then update new page id var 
+		    buffer_manager.unfix_page(new_inner_frame, true);
+		    buffer_manager.unfix_page(parent_frame, true);
+		    next_page_id++;
+		
+		    parent_node = parent_node->parent ; 
+		
+		    // Update the parent_page_id based on the parent of the current parent_node
+		    if (parent_node && parent_node->parent) {
+			parent_page_id = parent_node->parent->page_id;
+		    } else {
+			parent_page_id = root_page_id;
+		    }
+		
+		    split_key = new_split_key;
+		    new_leaf_node = NULL;
+		}
 
             //  Does the root also need to be split??  
             if (!parent_node) {
