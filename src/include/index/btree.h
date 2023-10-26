@@ -284,7 +284,7 @@ struct BTree : public Segment {
 
                 BufferFrame &new_inner_frame = buffer_manager.fix_page(buffer_manager.get_overall_page_id(segment_id, next_page_id), true) ;
                 new_inner_node = new (new_inner_frame.get_data()) InnerNode();
-                KeyT new_split_key = ((InnerNode *) parent_node))->split(new_inner_node, split_key, new_leaf_node ? next_page_id - 1: 0 ); // What is this line doing?
+                KeyT new_split_key = ((InnerNode *) parent_node)->split((std::byte *) new_inner_node ); // What is this line doing?
 
                 // now unfix the new inner and parent frames and then upda new page id var 
                 buffer_manager.unfix_page(new_inner_frame, true);
