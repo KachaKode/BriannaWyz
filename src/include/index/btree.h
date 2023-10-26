@@ -84,8 +84,19 @@ struct BTree : public Segment {
 
             right_inner_node->children[0] = children[split_point];
             right_inner_node->count++;
-            // TO DO: Still more to do...
-	        return split_key;
+            
+	    // Redistribute keys and children
+		for (uint32_t i = split_point; i < this->count; ++i) {
+		    right_inner_node->keys[i - split_point] = this->keys[i];
+		    right_inner_node->children[i - split_point + 1] = this->children[i + 1];
+		}
+		
+		// Update counts
+		right_inner_node->count = this->count - split_point;
+		this->count = split_point;
+		
+		// Return the split key
+		return split_key;
         }
 
         /// Returns the keys.
@@ -126,17 +137,34 @@ struct BTree : public Segment {
         }
 
         /// Erase a key.
-        void erase(const KeyT &key) {
+        //void erase(const KeyT &key) {
             //TODO
-        }
+        //}
 
         /// Split the node.
         /// @param[in] buffer       The buffer for the new page.
         /// @return                 The separator key.
+        //KeyT split(std::byte* buffer) {
         KeyT split(std::byte* buffer) {
-            // TODO
-            UNUSED(buffer);
-        }
+	    // Create a new leaf node
+	    auto *right_leaf_node = new (buffer) LeafNode();
+	
+	    // Determine the split point
+	    uint32_t split_point = this->count / 2;
+	
+	    // Redistribute keys and values
+	    for (uint32_t i = split_point; i < this->count; ++i) {
+	        right_leaf_node->keys[i - split_point] = this->keys[i];
+	        right_leaf_node->values[i - split_point] = this->values[i];
+	    }
+	
+	    // Update counts
+	    right_leaf_node->count = this->count - split_point;
+	    this->count = split_point;
+	
+	    // Return the first key of the new leaf node
+	    return right_leaf_node->keys[0];
+	}
 
         /// Returns the keys.
         /// Can be implemented inefficiently as it's only used in the tests.
