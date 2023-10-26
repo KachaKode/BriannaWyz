@@ -328,6 +328,151 @@ struct BTree : public Segment {
         }
 
     }
+
+	void erase(const KeyT &key) {
+	    // Step 1: Locate the leaf node
+	    Node* current_node = root;
+	    while (!current_node->is_leaf) {
+	        InnerNode* inner = static_cast<InnerNode*>(current_node);
+	        uint32_t index = inner->lower_bound(key).first;
+	        current_node = inner->children[index]; // Get the child node based on the index
+	    }
+	    LeafNode* leaf = static_cast<LeafNode*>(current_node);
+	
+	    // Step 2: Erase from leaf node
+	    leaf->erase(key);
+	
+	    // Step 3: Handle underflow
+	    if (leaf->count < LeafNode::kCapacity / 2) {
+	        handleUnderflow(leaf);
+	    }
+	}
+	
+	void handleUnderflow(LeafNode* leaf) {
+	    LeafNode* leftSibling = nullptr;
+	    LeafNode* rightSibling = nullptr;
+	    InnerNode* parent = leaf->parent;
+	
+	    // Find siblings
+	    uint32_t index;
+	    for (index = 0; index < parent->count; ++index) {
+	        if (parent->children[index] == leaf) {
+	            if (index > 0) leftSibling = static_cast<LeafNode*>(parent->children[index - 1]);
+	            if (index < parent->count - 1) rightSibling = static_cast<LeafNode*>(parent->children[index + 1]);
+	            break;
+	        }
+	    }
+	
+	    // Borrowing from left sibling
+	    if (leftSibling && leftSibling->count > LeafNode::kCapacity / 2) {
+	        // Borrow the largest key from left sibling
+	        leaf->insert(leftSibling->keys[leftSibling->count - 1], leftSibling->values[leftSibling->count - 1]);
+	        leftSibling->erase(leftSibling->keys[leftSibling->count - 1]);
+	        parent->keys[index - 1] = leaf->keys[0]; // Update separator key in parent
+	        return;
+	    }
+	
+	    // Borrowing from right sibling
+	    if (rightSibling && rightSibling->count > LeafNode::kCapacity / 2) {
+	        // Borrow the smallest key from right sibling
+	        leaf->insert(rightSibling->keys[0], rightSibling->values[0]);
+	        rightSibling->erase(rightSibling->keys[0]);
+	        parent->keys[index] = rightSibling->keys[0]; // Update separator key in parent
+	        return;
+	    }
+	
+	    // Merging
+	    if (leftSibling) {
+	        // Merge with left sibling
+	        for (uint32_t i = 0; i < leaf->count; ++i) {
+	            leftSibling->insert(leaf->keys[i], leaf->values[i]);
+	        }
+	        parent->erase(parent->keys[index - 1]);
+	        delete leaf; // Free up the memory of the merged leaf node
+	    } else if (rightSibling) {
+	        // Merge with right sibling
+	        for (uint32_t i = 0; i < rightSibling->count; ++i) {
+	            leaf->insert(rightSibling->keys[i], rightSibling->values[i]);
+	        }
+	        parent->erase(parent->keys[index]);
+	        delete rightSibling; // Free up the memory of the merged leaf node
+	    }
+	
+	    // Handle potential underflow in parent node
+	    if (parent->count < InnerNode::kCapacity / 2) {
+	        handleInnerNodeUnderflow(parent);
+	    }
+	}
+
+
+        void handleInnerNodeUnderflow(InnerNode* inner) {
+	    InnerNode* leftSibling = nullptr;
+	    InnerNode* rightSibling = nullptr;
+	    InnerNode* parent = inner->parent;
+	
+	    // If this is the root node and it's empty, handle separately
+	    if (!parent) {
+	        if (inner->count == 0) {
+	            root = inner->children[0];
+	            delete inner;
+	        }
+	        return;
+	    }
+	
+	    // Find siblings
+	    uint32_t index;
+	    for (index = 0; index < parent->count; ++index) {
+	        if (parent->children[index] == inner) {
+	            if (index > 0) leftSibling = static_cast<InnerNode*>(parent->children[index - 1]);
+	            if (index < parent->count - 1) rightSibling = static_cast<InnerNode*>(parent->children[index + 1]);
+	            break;
+	        }
+	    }
+	
+	    // Borrowing from left sibling
+	    if (leftSibling && leftSibling->count > InnerNode::kCapacity / 2) {
+	        // Borrow the largest key and child from left sibling
+	        KeyT borrowedKey = parent->keys[index - 1];
+	        parent->keys[index - 1] = leftSibling->keys[leftSibling->count - 1];
+	        inner->insert(borrowedKey, leftSibling->children[leftSibling->count]);
+	        leftSibling->erase(leftSibling->keys[leftSibling->count - 1]);
+	        return;
+	    }
+	
+	    // Borrowing from right sibling
+	    if (rightSibling && rightSibling->count > InnerNode::kCapacity / 2) {
+	        // Borrow the smallest key and child from right sibling
+	        KeyT borrowedKey = parent->keys[index];
+	        parent->keys[index] = rightSibling->keys[0];
+	        inner->insert(borrowedKey, rightSibling->children[0]);
+	        rightSibling->erase(rightSibling->keys[0]);
+	        return;
+	    }
+	
+	    // Merging
+	    if (leftSibling) {
+	        // Merge with left sibling
+	        leftSibling->insert(parent->keys[index - 1], inner->children[0]);
+	        for (uint32_t i = 1; i < inner->count; ++i) {
+	            leftSibling->insert(inner->keys[i - 1], inner->children[i]);
+	        }
+	        parent->erase(parent->keys[index - 1]);
+	        delete inner; // Free up the memory of the merged inner node
+	    } else if (rightSibling) {
+	        // Merge with right sibling
+	        inner->insert(parent->keys[index], rightSibling->children[0]);
+	        for (uint32_t i = 1; i < rightSibling->count; ++i) {
+	            inner->insert(rightSibling->keys[i - 1], rightSibling->children[i]);
+	        }
+	        parent->erase(parent->keys[index]);
+	        delete rightSibling; // Free up the memory of the merged inner node
+	    }
+	
+	    // Handle potential underflow in parent node
+	    if (parent->count < InnerNode::kCapacity / 2) {
+	        handleInnerNodeUnderflow(parent);
+	    }
+	}
 };
 
 }  // namespace buzzdb
