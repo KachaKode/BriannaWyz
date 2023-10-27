@@ -37,7 +37,7 @@ struct BTree : public Segment {
 
     struct InnerNode: public Node {
         /// The capacity of a node.
-        static constexpr uint32_t kCapacity = (PageSize - sizeof(Node)) / (sizeof(KeyT) + sizeof(ValueT));;
+        static constexpr uint32_t kCapacity = (PageSize - sizeof(Node)) / (sizeof(KeyT) + sizeof(ValueT));
 
         /// The keys.
         KeyT keys[kCapacity];
@@ -63,11 +63,25 @@ struct BTree : public Segment {
         /// Insert a key.
         /// @param[in] key          The separator that should be inserted.
         /// @param[in] split_page   The id of the split page that should be inserted.
-        void insert(const KeyT &key, uint64_t split_page) {
- 	      // TODO: remove the below lines of code 
-    	      // and add your implementation here
-	      UNUSED(key);
-	      UNUSED(split_page);
+        void insert(const KeyT &key, uint64_t split_page) {  // *MarcAdd*
+ 	    // Find the correct position to insert the new key
+	    int index = 0;
+	    while (index < count && keys[index] < key) {
+	        index++;
+	    }
+	
+	    // Shift keys and children to the right to make space for the new key and child
+	    for (int i = count; i > index; i--) {
+	        keys[i] = keys[i - 1];
+	        children[i + 1] = children[i];
+	    }
+	
+	    // Insert the new key and child
+	    keys[index] = key;
+	    children[index + 1] = child;
+	
+	    // Increase the count of keys in the node
+	    count++;
            
         }
 
@@ -85,38 +99,35 @@ struct BTree : public Segment {
             right_inner_node->children[0] = children[split_point];
             right_inner_node->count++;
             
-	    // Redistribute keys and children
-		for (uint32_t i = split_point; i < this->count; ++i) {
-		    right_inner_node->keys[i - split_point] = this->keys[i];
-		    right_inner_node->children[i - split_point + 1] = this->children[i + 1];
-		}
-		
-		// Update counts
-		right_inner_node->count = this->count - split_point;
-		this->count = split_point;
-		
-		// Return the split key
-		return split_key;
+            for (int i = split_point; i < this->count; i++){
+                right_inner_node->keys[i - split_point] = keys[i];
+                right_inner_node->children[i - split_point + 1] = children[i + 1];  //*MarcAdd*
+            }
+
+            // update the counts  of each node 
+            right_inner_node->count = this->count - split_point;
+            this->count = split_point;
+
+            return split_key;
         }
 
         /// Returns the keys.
         /// Can be implemented inefficiently as it's only used in the tests.
         std::vector<KeyT> get_key_vector() {
-            // TODO
+            return keys;
         }
 
         /// Returns the child page ids.
         /// Can be implemented inefficiently as it's only used in the tests.
         std::vector<uint64_t> get_child_vector() {
-            // TODO
-	    return std::vector<uint64_t>();
+            return children;
         }
     };
 
     struct LeafNode: public Node {
         /// The capacity of a node.
         /// TODO think about the capacity that the nodes have.
-        static constexpr uint32_t kCapacity = 42;
+        static constexpr uint32_t kCapacity = (PageSize - sizeof(Node)) / (sizeof(KeyT) + sizeof(ValueT));
 
         /// The keys.
         KeyT keys[kCapacity];
@@ -130,52 +141,81 @@ struct BTree : public Segment {
         /// Insert a key.
         /// @param[in] key          The key that should be inserted.
         /// @param[in] value        The value that should be inserted.
-        void insert(const KeyT &key, const ValueT &value) {
-            //TODO
-            UNUSED(key);
-            UNUSED(value);
+        void insert(const KeyT &key, const ValueT &value) {  //  *MarcAdd*
+            // Find the correct position to insert the new key
+	    uint32_t index = 0;
+	    while (index < count && keys[index] < key) {
+	        index++;
+	    }
+	
+	    // Shift keys and values to the right to make space for the new key and value
+	    for (uint32_t i = count; i > index; --i) {
+	        keys[i] = keys[i - 1];
+	        values[i] = values[i - 1];
+	    }
+	
+	    // Insert the new key and value
+	    keys[index] = key;
+	    values[index] = value;
+	
+	    // Increase the count of keys and values in the node
+	    count++;
         }
 
         /// Erase a key.
-        //void erase(const KeyT &key) {
-            //TODO
-        //}
+        void erase(const KeyT &key) {
+            // find the key in the leaf's key array 
+            uint16_t index = static_cast<uint16_t>(-1);;
+            for (uint16_t i = 0; i < this->count; ++i) {
+                if (this->keys[i] == key) {
+                    index = i;
+                    break;  // Key found
+                }
+            }
+            if (index != static_cast<uint16_t>(-1)) {
+                // Key found; remove it
+                for (uint16_t i = index; i < this->count - 1; ++i) {
+                    keys[i] = keys[i + 1];
+                    values[i] = values[i + 1];
+                }
+                this->count--;
+            } 
+            return;
+        }
 
         /// Split the node.
         /// @param[in] buffer       The buffer for the new page.
         /// @return                 The separator key.
-        //KeyT split(std::byte* buffer) {
         KeyT split(std::byte* buffer) {
-	    // Create a new leaf node
-	    auto *right_leaf_node = new (buffer) LeafNode();
-	
-	    // Determine the split point
-	    uint32_t split_point = this->count / 2;
-	
-	    // Redistribute keys and values
-	    for (uint32_t i = split_point; i < this->count; ++i) {
-	        right_leaf_node->keys[i - split_point] = this->keys[i];
-	        right_leaf_node->values[i - split_point] = this->values[i];
-	    }
-	
-	    // Update counts
-	    right_leaf_node->count = this->count - split_point;
-	    this->count = split_point;
-	
-	    // Return the first key of the new leaf node
-	    return right_leaf_node->keys[0];
-	}
+            // Create a new inner node
+            auto *right_leaf_node = new (buffer) LeafNode();
+
+            // Create a new key
+	        uint32_t split_point = this->count / 2;
+
+            
+            for (int i = split_point; i < this->count; i++){
+                right_leaf_node->keys[i - split_point] = keys[i];
+                right_leaf_node->values[i - split_point] = values[i];
+            }
+
+            // update the counts  of each node 
+            right_leaf_node->count = this->count - split_point;
+            this->count = split_point;
+
+            return right_leaf_node->keys[0];
+        }
 
         /// Returns the keys.
         /// Can be implemented inefficiently as it's only used in the tests.
         std::vector<KeyT> get_key_vector() {
-            // TODO
+            return keys; 
         }
 
         /// Returns the values.
         /// Can be implemented inefficiently as it's only used in the tests.
         std::vector<ValueT> get_value_vector() {
-            // TODO
+            return values;
         }
     };
 
@@ -210,7 +250,7 @@ struct BTree : public Segment {
             } else {
                 InnerNode *inner_node = (InnerNode *) current_node;
                 auto [index, found] = inner_node->lower_bound(key); 
-                if (found )
+                if (found)
                     current_page_id = inner_node->children[index];
                 else
                     current_page_id = (index > 0) ? inner_node->children[index-1] : 0 ;
@@ -246,7 +286,6 @@ struct BTree : public Segment {
                     high = mid - 1;
                 }
             }
-
             buffer_manager.unfix_page(frame, false);
         }
 
@@ -258,8 +297,12 @@ struct BTree : public Segment {
     /// Erase an entry in the tree.
     /// @param[in] key      The key that should be searched.
     void erase(const KeyT &key) {
-        // TODO
-	UNUSED(key);
+        // first we gotta find the leaf node 
+        uint64_t leaf_page_id = find_leaf_node(key);
+
+        BufferFrame &frame = buffer_manager.fix_page(leaf_page_id, false) ; 
+        LeafNode *leaf_node = (LeafNode *) frame.get_data(); 
+        leaf_node->erase(key);
     }
 
     /// Inserts a new entry into the tree.
@@ -306,36 +349,28 @@ struct BTree : public Segment {
             buffer_manager.unfix_page(leaf_frame, true);
 
             // now handle the node splits and propagate it up the tree 
-		while (parent_node != NULL && parent_node->count == InnerNode::kCapacity ) {
-		    BufferFrame &parent_frame = buffer_manager.fix_page(parent_page_id, true);
-		    InnerNode * new_inner_node;
-		
-		    BufferFrame &new_inner_frame = buffer_manager.fix_page(buffer_manager.get_overall_page_id(segment_id, next_page_id), true) ;
-		    new_inner_node = new (new_inner_frame.get_data()) InnerNode();
-		    KeyT new_split_key = ((InnerNode *) parent_node)->split((std::byte *) new_inner_node );
-		
-		    // Insert the separator key into the parent node
-		    if (parent_node->parent) {
-			parent_node->parent->insert(split_key, next_page_id);
-		    }
-		
-		    // now unfix the new inner and parent frames and then update new page id var 
-		    buffer_manager.unfix_page(new_inner_frame, true);
-		    buffer_manager.unfix_page(parent_frame, true);
-		    next_page_id++;
-		
-		    parent_node = parent_node->parent ; 
-		
-		    // Update the parent_page_id based on the parent of the current parent_node
-		    if (parent_node && parent_node->parent) {
-			parent_page_id = parent_node->parent->page_id;
-		    } else {
-			parent_page_id = root_page_id;
-		    }
-		
-		    split_key = new_split_key;
-		    new_leaf_node = NULL;
-		}
+            while (parent_node != NULL && parent_node->count == InnerNode::kCapacity ) {
+                BufferFrame &parent_frame = buffer_manager.fix_page(parent_page_id, true);
+                InnerNode * new_inner_node;
+
+                BufferFrame &new_inner_frame = buffer_manager.fix_page(buffer_manager.get_overall_page_id(segment_id, next_page_id), true) ;
+                new_inner_node = new (new_inner_frame.get_data()) InnerNode();
+                KeyT new_split_key = ((InnerNode *) parent_node)->split((std::byte *) new_inner_node); 
+
+		// Insert the separator key into the parent node  *MarcAdd*
+	        if (parent_node->parent) {
+		    parent_node->parent->insert(split_key, next_page_id);
+	        }
+
+                // now unfix the new inner and parent frames and then upda new page id var 
+                buffer_manager.unfix_page(new_inner_frame, true);
+                buffer_manager.unfix_page(parent_frame, true);
+                next_page_id++;
+
+                parent_node = parent_node->parent ; 
+                split_key = new_split_key;
+                new_leaf_node = NULL;
+            }
 
             //  Does the root also need to be split??  
             if (!parent_node) {
@@ -354,153 +389,7 @@ struct BTree : public Segment {
             // means that the key wasn't found!!!  
             return;
         }
-
     }
-
-	void erase(const KeyT &key) {
-	    // Step 1: Locate the leaf node
-	    Node* current_node = root;
-	    while (!current_node->is_leaf) {
-	        InnerNode* inner = static_cast<InnerNode*>(current_node);
-	        uint32_t index = inner->lower_bound(key).first;
-	        current_node = inner->children[index]; // Get the child node based on the index
-	    }
-	    LeafNode* leaf = static_cast<LeafNode*>(current_node);
-	
-	    // Step 2: Erase from leaf node
-	    leaf->erase(key);
-	
-	    // Step 3: Handle underflow
-	    if (leaf->count < LeafNode::kCapacity / 2) {
-	        handleUnderflow(leaf);
-	    }
-	}
-	
-	void handleUnderflow(LeafNode* leaf) {
-	    LeafNode* leftSibling = nullptr;
-	    LeafNode* rightSibling = nullptr;
-	    InnerNode* parent = leaf->parent;
-	
-	    // Find siblings
-	    uint32_t index;
-	    for (index = 0; index < parent->count; ++index) {
-	        if (parent->children[index] == leaf) {
-	            if (index > 0) leftSibling = static_cast<LeafNode*>(parent->children[index - 1]);
-	            if (index < parent->count - 1) rightSibling = static_cast<LeafNode*>(parent->children[index + 1]);
-	            break;
-	        }
-	    }
-	
-	    // Borrowing from left sibling
-	    if (leftSibling && leftSibling->count > LeafNode::kCapacity / 2) {
-	        // Borrow the largest key from left sibling
-	        leaf->insert(leftSibling->keys[leftSibling->count - 1], leftSibling->values[leftSibling->count - 1]);
-	        leftSibling->erase(leftSibling->keys[leftSibling->count - 1]);
-	        parent->keys[index - 1] = leaf->keys[0]; // Update separator key in parent
-	        return;
-	    }
-	
-	    // Borrowing from right sibling
-	    if (rightSibling && rightSibling->count > LeafNode::kCapacity / 2) {
-	        // Borrow the smallest key from right sibling
-	        leaf->insert(rightSibling->keys[0], rightSibling->values[0]);
-	        rightSibling->erase(rightSibling->keys[0]);
-	        parent->keys[index] = rightSibling->keys[0]; // Update separator key in parent
-	        return;
-	    }
-	
-	    // Merging
-	    if (leftSibling) {
-	        // Merge with left sibling
-	        for (uint32_t i = 0; i < leaf->count; ++i) {
-	            leftSibling->insert(leaf->keys[i], leaf->values[i]);
-	        }
-	        parent->erase(parent->keys[index - 1]);
-	        delete leaf; // Free up the memory of the merged leaf node
-	    } else if (rightSibling) {
-	        // Merge with right sibling
-	        for (uint32_t i = 0; i < rightSibling->count; ++i) {
-	            leaf->insert(rightSibling->keys[i], rightSibling->values[i]);
-	        }
-	        parent->erase(parent->keys[index]);
-	        delete rightSibling; // Free up the memory of the merged leaf node
-	    }
-	
-	    // Handle potential underflow in parent node
-	    if (parent->count < InnerNode::kCapacity / 2) {
-	        handleInnerNodeUnderflow(parent);
-	    }
-	}
-
-
-        void handleInnerNodeUnderflow(InnerNode* inner) {
-	    InnerNode* leftSibling = nullptr;
-	    InnerNode* rightSibling = nullptr;
-	    InnerNode* parent = inner->parent;
-	
-	    // If this is the root node and it's empty, handle separately
-	    if (!parent) {
-	        if (inner->count == 0) {
-	            root = inner->children[0];
-	            delete inner;
-	        }
-	        return;
-	    }
-	
-	    // Find siblings
-	    uint32_t index;
-	    for (index = 0; index < parent->count; ++index) {
-	        if (parent->children[index] == inner) {
-	            if (index > 0) leftSibling = static_cast<InnerNode*>(parent->children[index - 1]);
-	            if (index < parent->count - 1) rightSibling = static_cast<InnerNode*>(parent->children[index + 1]);
-	            break;
-	        }
-	    }
-	
-	    // Borrowing from left sibling
-	    if (leftSibling && leftSibling->count > InnerNode::kCapacity / 2) {
-	        // Borrow the largest key and child from left sibling
-	        KeyT borrowedKey = parent->keys[index - 1];
-	        parent->keys[index - 1] = leftSibling->keys[leftSibling->count - 1];
-	        inner->insert(borrowedKey, leftSibling->children[leftSibling->count]);
-	        leftSibling->erase(leftSibling->keys[leftSibling->count - 1]);
-	        return;
-	    }
-	
-	    // Borrowing from right sibling
-	    if (rightSibling && rightSibling->count > InnerNode::kCapacity / 2) {
-	        // Borrow the smallest key and child from right sibling
-	        KeyT borrowedKey = parent->keys[index];
-	        parent->keys[index] = rightSibling->keys[0];
-	        inner->insert(borrowedKey, rightSibling->children[0]);
-	        rightSibling->erase(rightSibling->keys[0]);
-	        return;
-	    }
-	
-	    // Merging
-	    if (leftSibling) {
-	        // Merge with left sibling
-	        leftSibling->insert(parent->keys[index - 1], inner->children[0]);
-	        for (uint32_t i = 1; i < inner->count; ++i) {
-	            leftSibling->insert(inner->keys[i - 1], inner->children[i]);
-	        }
-	        parent->erase(parent->keys[index - 1]);
-	        delete inner; // Free up the memory of the merged inner node
-	    } else if (rightSibling) {
-	        // Merge with right sibling
-	        inner->insert(parent->keys[index], rightSibling->children[0]);
-	        for (uint32_t i = 1; i < rightSibling->count; ++i) {
-	            inner->insert(rightSibling->keys[i - 1], rightSibling->children[i]);
-	        }
-	        parent->erase(parent->keys[index]);
-	        delete rightSibling; // Free up the memory of the merged inner node
-	    }
-	
-	    // Handle potential underflow in parent node
-	    if (parent->count < InnerNode::kCapacity / 2) {
-	        handleInnerNodeUnderflow(parent);
-	    }
-	}
 };
 
 }  // namespace buzzdb
