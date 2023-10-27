@@ -1,0 +1,13 @@
+# Target labels
+ gtest_src
+# Source files and their labels
+/workspaces/lab3.1/build/CMakeFiles/gtest_src
+/workspaces/lab3.1/build/CMakeFiles/gtest_src.rule
+/workspaces/lab3.1/build/CMakeFiles/gtest_src-complete.rule
+/workspaces/lab3.1/build/vendor/gtm/src/gtest_src-stamp/gtest_src-build.rule
+/workspaces/lab3.1/build/vendor/gtm/src/gtest_src-stamp/gtest_src-configure.rule
+/workspaces/lab3.1/build/vendor/gtm/src/gtest_src-stamp/gtest_src-download.rule
+/workspaces/lab3.1/build/vendor/gtm/src/gtest_src-stamp/gtest_src-install.rule
+/workspaces/lab3.1/build/vendor/gtm/src/gtest_src-stamp/gtest_src-mkdir.rule
+/workspaces/lab3.1/build/vendor/gtm/src/gtest_src-stamp/gtest_src-patch.rule
+/workspaces/lab3.1/build/vendor/gtm/src/gtest_src-stamp/gtest_src-update.rule

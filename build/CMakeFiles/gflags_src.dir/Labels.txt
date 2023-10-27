@@ -1,0 +1,13 @@
+# Target labels
+ gflags_src
+# Source files and their labels
+/workspaces/lab3.1/build/CMakeFiles/gflags_src
+/workspaces/lab3.1/build/CMakeFiles/gflags_src.rule
+/workspaces/lab3.1/build/CMakeFiles/gflags_src-complete.rule
+/workspaces/lab3.1/build/vendor/gflags/src/gflags_src-stamp/gflags_src-build.rule
+/workspaces/lab3.1/build/vendor/gflags/src/gflags_src-stamp/gflags_src-configure.rule
+/workspaces/lab3.1/build/vendor/gflags/src/gflags_src-stamp/gflags_src-download.rule
+/workspaces/lab3.1/build/vendor/gflags/src/gflags_src-stamp/gflags_src-install.rule
+/workspaces/lab3.1/build/vendor/gflags/src/gflags_src-stamp/gflags_src-mkdir.rule
+/workspaces/lab3.1/build/vendor/gflags/src/gflags_src-stamp/gflags_src-patch.rule
+/workspaces/lab3.1/build/vendor/gflags/src/gflags_src-stamp/gflags_src-update.rule

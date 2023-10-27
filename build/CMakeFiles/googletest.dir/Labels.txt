@@ -1,0 +1,13 @@
+# Target labels
+ googletest
+# Source files and their labels
+/workspaces/lab3.1/build/CMakeFiles/googletest
+/workspaces/lab3.1/build/CMakeFiles/googletest.rule
+/workspaces/lab3.1/build/CMakeFiles/googletest-complete.rule
+/workspaces/lab3.1/build/vendor/gtm/src/googletest-stamp/googletest-build.rule
+/workspaces/lab3.1/build/vendor/gtm/src/googletest-stamp/googletest-configure.rule
+/workspaces/lab3.1/build/vendor/gtm/src/googletest-stamp/googletest-download.rule
+/workspaces/lab3.1/build/vendor/gtm/src/googletest-stamp/googletest-install.rule
+/workspaces/lab3.1/build/vendor/gtm/src/googletest-stamp/googletest-mkdir.rule
+/workspaces/lab3.1/build/vendor/gtm/src/googletest-stamp/googletest-patch.rule
+/workspaces/lab3.1/build/vendor/gtm/src/googletest-stamp/googletest-update.rule

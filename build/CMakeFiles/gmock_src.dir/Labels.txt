@@ -1,0 +1,13 @@
+# Target labels
+ gmock_src
+# Source files and their labels
+/workspaces/lab3.1/build/CMakeFiles/gmock_src
+/workspaces/lab3.1/build/CMakeFiles/gmock_src.rule
+/workspaces/lab3.1/build/CMakeFiles/gmock_src-complete.rule
+/workspaces/lab3.1/build/vendor/gtm/src/gmock_src-stamp/gmock_src-build.rule
+/workspaces/lab3.1/build/vendor/gtm/src/gmock_src-stamp/gmock_src-configure.rule
+/workspaces/lab3.1/build/vendor/gtm/src/gmock_src-stamp/gmock_src-download.rule
+/workspaces/lab3.1/build/vendor/gtm/src/gmock_src-stamp/gmock_src-install.rule
+/workspaces/lab3.1/build/vendor/gtm/src/gmock_src-stamp/gmock_src-mkdir.rule
+/workspaces/lab3.1/build/vendor/gtm/src/gmock_src-stamp/gmock_src-patch.rule
+/workspaces/lab3.1/build/vendor/gtm/src/gmock_src-stamp/gmock_src-update.rule
