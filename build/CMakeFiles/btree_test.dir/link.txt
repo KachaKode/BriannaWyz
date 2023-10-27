@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC -Wall -Wextra -Werror -Wno-strict-aliasing -g CMakeFiles/btree_test.dir/test/unit/index/btree_test.cc.o -o test/btree_test  libbuzzdb.a vendor/benchmark/lib/libbenchmark.a vendor/gtm/gtest/lib/libgtest.a vendor/gtm/gmock/lib/libgmock.a vendor/gflags/lib/libgflags.a 

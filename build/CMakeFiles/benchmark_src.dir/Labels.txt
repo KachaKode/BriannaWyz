@@ -1,0 +1,13 @@
+# Target labels
+ benchmark_src
+# Source files and their labels
+/workspaces/lab3.1/build/CMakeFiles/benchmark_src
+/workspaces/lab3.1/build/CMakeFiles/benchmark_src.rule
+/workspaces/lab3.1/build/CMakeFiles/benchmark_src-complete.rule
+/workspaces/lab3.1/build/vendor/benchmark/src/benchmark_src-stamp/benchmark_src-build.rule
+/workspaces/lab3.1/build/vendor/benchmark/src/benchmark_src-stamp/benchmark_src-configure.rule
+/workspaces/lab3.1/build/vendor/benchmark/src/benchmark_src-stamp/benchmark_src-download.rule
+/workspaces/lab3.1/build/vendor/benchmark/src/benchmark_src-stamp/benchmark_src-install.rule
+/workspaces/lab3.1/build/vendor/benchmark/src/benchmark_src-stamp/benchmark_src-mkdir.rule
+/workspaces/lab3.1/build/vendor/benchmark/src/benchmark_src-stamp/benchmark_src-patch.rule
+/workspaces/lab3.1/build/vendor/benchmark/src/benchmark_src-stamp/benchmark_src-update.rule
