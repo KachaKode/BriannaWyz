@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="11" failures="10" disabled="0" errors="0" timestamp="2023-10-27T00:35:59" time="0.001" name="AllTests">
+  <testsuite name="BTreeTest" tests="11" failures="10" disabled="0" errors="0" time="0.001">
+    <testcase name="InsertEmptyTree" status="run" time="0" classname="BTreeTest">
+      <failure message="/workspaces/lab3.1/test/unit/index/btree_test.cc:29&#x0A;Value of: tree.root&#x0A;  Actual: false&#x0A;Expected: true&#x0A;inserting an element into an empty B-Tree does not create a node." type=""><![CDATA[/workspaces/lab3.1/test/unit/index/btree_test.cc:29
+Value of: tree.root
+  Actual: false
+Expected: true
+inserting an element into an empty B-Tree does not create a node.]]></failure>
+    </testcase>
+    <testcase name="InsertLeafNode" status="run" time="0" classname="BTreeTest">
+      <failure message="/workspaces/lab3.1/test/unit/index/btree_test.cc:52&#x0A;Value of: tree.root&#x0A;  Actual: false&#x0A;Expected: true" type=""><![CDATA[/workspaces/lab3.1/test/unit/index/btree_test.cc:52
+Value of: tree.root
+  Actual: false
+Expected: true]]></failure>
+    </testcase>
+    <testcase name="InsertLeafNodeSplit" status="run" time="0.001" classname="BTreeTest">
+      <failure message="/workspaces/lab3.1/test/unit/index/btree_test.cc:75&#x0A;Value of: tree.root&#x0A;  Actual: false&#x0A;Expected: true" type=""><![CDATA[/workspaces/lab3.1/test/unit/index/btree_test.cc:75
+Value of: tree.root
+  Actual: false
+Expected: true]]></failure>
+    </testcase>
+    <testcase name="LookupEmptyTree" status="run" time="0" classname="BTreeTest" />
+    <testcase name="LookupSingleLeaf" status="run" time="0" classname="BTreeTest">
+      <failure message="/workspaces/lab3.1/test/unit/index/btree_test.cc:121&#x0A;Value of: tree.lookup(i)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;searching for the just inserted key k=0 yields nothing" type=""><![CDATA[/workspaces/lab3.1/test/unit/index/btree_test.cc:121
+Value of: tree.lookup(i)
+  Actual: false
+Expected: true
+searching for the just inserted key k=0 yields nothing]]></failure>
+    </testcase>
+    <testcase name="LookupSingleSplit" status="run" time="0" classname="BTreeTest">
+      <failure message="/workspaces/lab3.1/test/unit/index/btree_test.cc:143&#x0A;Value of: tree.lookup(BTree::LeafNode::kCapacity)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;searching for the just inserted key k=64 yields nothing" type=""><![CDATA[/workspaces/lab3.1/test/unit/index/btree_test.cc:143
+Value of: tree.lookup(BTree::LeafNode::kCapacity)
+  Actual: false
+Expected: true
+searching for the just inserted key k=64 yields nothing]]></failure>
+    </testcase>
+    <testcase name="LookupMultipleSplitsIncreasing" status="run" time="0" classname="BTreeTest">
+      <failure message="/workspaces/lab3.1/test/unit/index/btree_test.cc:163&#x0A;Value of: tree.lookup(i)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;searching for the just inserted key k=0 yields nothing" type=""><![CDATA[/workspaces/lab3.1/test/unit/index/btree_test.cc:163
+Value of: tree.lookup(i)
+  Actual: false
+Expected: true
+searching for the just inserted key k=0 yields nothing]]></failure>
+    </testcase>
+    <testcase name="LookupMultipleSplitsDecreasing" status="run" time="0" classname="BTreeTest">
+      <failure message="/workspaces/lab3.1/test/unit/index/btree_test.cc:183&#x0A;Value of: tree.lookup(i)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;searching for the just inserted key k=630 yields nothing" type=""><![CDATA[/workspaces/lab3.1/test/unit/index/btree_test.cc:183
+Value of: tree.lookup(i)
+  Actual: false
+Expected: true
+searching for the just inserted key k=630 yields nothing]]></failure>
+    </testcase>
+    <testcase name="LookupRandomNonRepeating" status="run" time="0" classname="BTreeTest">
+      <failure message="/workspaces/lab3.1/test/unit/index/btree_test.cc:209&#x0A;Value of: tree.lookup(keys[i])&#x0A;  Actual: false&#x0A;Expected: true&#x0A;searching for the just inserted key k=837 after i=0 inserts yields nothing" type=""><![CDATA[/workspaces/lab3.1/test/unit/index/btree_test.cc:209
+Value of: tree.lookup(keys[i])
+  Actual: false
+Expected: true
+searching for the just inserted key k=837 after i=0 inserts yields nothing]]></failure>
+    </testcase>
+    <testcase name="LookupRandomRepeating" status="run" time="0" classname="BTreeTest">
+      <failure message="/workspaces/lab3.1/test/unit/index/btree_test.cc:239&#x0A;Value of: v&#x0A;  Actual: false&#x0A;Expected: true&#x0A;searching for the just inserted key k=15 after i=0 inserts yields nothing" type=""><![CDATA[/workspaces/lab3.1/test/unit/index/btree_test.cc:239
+Value of: v
+  Actual: false
+Expected: true
+searching for the just inserted key k=15 after i=0 inserts yields nothing]]></failure>
+    </testcase>
+    <testcase name="Erase" status="run" time="0" classname="BTreeTest">
+      <failure message="/workspaces/lab3.1/test/unit/index/btree_test.cc:268&#x0A;Value of: tree.lookup(i)&#x0A;  Actual: false&#x0A;Expected: true&#x0A;k=0 was not in the tree" type=""><![CDATA[/workspaces/lab3.1/test/unit/index/btree_test.cc:268
+Value of: tree.lookup(i)
+  Actual: false
+Expected: true
+k=0 was not in the tree]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>
